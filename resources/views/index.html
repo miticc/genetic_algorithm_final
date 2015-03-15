@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Find the Path!</title>
+<link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="content">
+<p class="tekst1">
+Path finding problem
+</p>
+
+<p class="tekst3">
+Welcome to the presentation of the application created for finding a path on a small map with obstacles using <b>genetic algorithm</b>.
+<br/>
+<br/>
+This application is created to demonstrate characteristics and challenges of using genetic algorithm for solving simple problem such as finding a path.
+
+Although there are several well known general algorithms, such as Dijkstra's Algorithm or A* Algorithm that are widely used for finding the optimal shortest path, here is used different approach - genetic algorithm. 
+<br/>
+<br/>
+Genetic Algorithms are adaptive heuristic search algorithm based on the evolutionary ideas of natural selection and genetics. As such they represent an intelligent exploitation of a random search used to solve optimization problems.
+
+In a genetic algorithm, a population of candidate solutions (called individuals, creatures, or phenotypes) to an optimization problem is evolved toward better solutions. Each candidate solution has a set of properties (its chromosomes or genotype) which can be mutated and altered.
+
+The evolution usually starts from a population of randomly generated individuals, and is an iterative process, with the population in each iteration called a generation. 
+
+In each generation, the fitness of every individual in the population is evaluated. The more fit individuals are stochastically selected from the current population and each individual's genome is modified (recombined (using crossover operator) and possibly randomly mutated (using mutation operator)) to form a new generation. The new generation of candidate solutions is then used in the next iteration of the algorithm. Commonly, the algorithm terminates when either a maximum number of generations has been produced, or a satisfactory fitness level has been reached for the population.
+
+
+<br/>
+<br/>
+
+Having said that, by using genetic algorithm for path finding problem several challenges had to be overcome. Firstly, fitness function used to determine the performance level of each individual had to take into consideration not only the distance from the goal on the map, but also the behaviour of the individual (how many times barriers or borders were hit etc.).
+Also, the way how individuals were selected for the crossover (two by two best individuals were selected to create a child for next generation) had great impact on the algorithm convergence. Mutation was performed on several genes in one genome and, at the end the new generation had several new random units that led to faster convergence.
+<br/>
+<br/>
+You are now ready to run the application! 
+<br/>
+By clicking on the button, <b>one path will be found and displayed on the map</b>.
+<br/>
+<br/>
+<b>Please note that it may take some time for the algorithm to finish its search and that the path it is found may not always be optimal.
+This is to demonstrate the unpredictable behaviour of a genetic algorithm even in the circumstances when all parameters are set properly. </b>
+
+</p>
+
+<form method="get" action="/result">
+
+  <br/>
+  
+  <button id="findd" class="button_example">Find the path!</button>
+
+
+
+
+
+</form>
+</div>
+</body>
+</html>
