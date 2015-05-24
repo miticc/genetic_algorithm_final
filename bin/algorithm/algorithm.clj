@@ -3,107 +3,105 @@
         clojure.pprint
         board.board))
 
-(def start (atom [0 0]))
-(def no-down (atom 0))
-(def no-left (atom 0))
-(def finish [3 2])
-(def max-distance 30)
-(def no-penalties (atom 0))
-
 (defn current-position
   "Calculates the final position after ecexution of all steps in the genome"
   [genome]
-  (do
-    (reset! start [0 0])
-    (reset! no-down 0)
-    (reset! no-left 0)
-    (reset! no-penalties 0
-            )
+  (let [startx (atom 0)
+        starty (atom 0)
+        no-down (atom 0)
+        no-left (atom 0)
+        no-penalties (atom 0)]
     (loop [i 0]
       (when (< i (count genome))
       (let [[x y] [(get genome i) (get genome (inc i))]]
         (case [x y]
           [0 0] (if 
                   (or 
-                    (= (get-in final-board [(inc (get @start 0)) (get @start 1)]) "bl")
-                    (= (get-in final-board [(inc (get @start 0)) (get @start 1)]) nil))
+                    (= (get-in final-board [(inc @startx) @starty]) "bl")
+                    (= (get-in final-board [(inc @startx) @starty]) nil))
                   (swap! no-penalties inc)
-                  (swap! start assoc 0 (inc (get @start 0))))  
+                  (swap! startx inc))  
           [0 1] (if 
                   (or 
-                    (= (get-in final-board [(get @start 0) (inc (get @start 1))]) "bl")
-                    (= (get-in final-board [(get @start 0) (inc (get @start 1))]) nil))
+                    (= (get-in final-board [@startx (inc @starty)]) "bl")
+                    (= (get-in final-board [@startx (inc @starty)]) nil))
                   (swap! no-penalties inc)
-                  (swap! start assoc 1 (inc (get @start 1)))) 
+                  (swap! starty inc)) 
           [1 0] (if 
                   (or 
-                    (= (get-in final-board [(dec (get @start 0)) (get @start 1)]) "bl")
-                    (= (get-in final-board [(dec (get @start 0)) (get @start 1)]) nil))
+                    (= (get-in final-board [(dec @startx) @starty]) "bl")
+                    (= (get-in final-board [(dec @startx) @starty]) nil))
                   (swap! no-penalties inc)
                   (do
                     (swap! no-down inc)
-                    (swap! start assoc 0 (dec (get @start 0)))))
+                    (swap! startx dec)))
           [1 1] (if 
                   (or 
-                    (= (get-in final-board [(get @start 0) (dec (get @start 1))]) "bl")
-                    (= (get-in final-board [(get @start 0) (dec (get @start 1))]) nil))
+                    (= (get-in final-board [@startx (dec @starty)]) "bl")
+                    (= (get-in final-board [@startx (dec @starty)]) nil))
                   (swap! no-penalties inc)
                   (do
                     (swap! no-left inc)
-                    (swap! start assoc 1 (dec (get @start 1))))))
-        (recur (+ i 2)))))))
+                    (swap! starty dec))))
+        (recur (+ i 2)))))
+    [[@startx @starty] @no-down @no-left @no-penalties]))
+
 
 (defn distance 
   "Calculates the distance between the final position and target field"
   [genome]
-  (do 
-    (current-position genome)
-      (+ (- (get finish 1) (get @start 1)) (- (get finish 0) (get @start 0)))
-    ))
+  (let [curr-pos (current-position genome)
+        finish [3 2]]
+     [(+ (- (get finish 1) (get (get curr-pos 0) 1)) (- (get finish 0) (get (get curr-pos 0) 0)))
+      curr-pos]))
 
 (defn fitness
   "Calculates the fitness of the genome"
   [genome]
   (let 
-    [down-left (if 
-                 (and (>= 1 @no-down) (>= 1 @no-left)) 
+    [max-distance 30
+     distance (distance genome)
+     dist (get distance 0)
+     no-down (get (get distance 1) 1)
+     no-left (get (get distance 1) 2)
+     no-pen (get (get distance 1) 3)
+     ]
+ (- (- 1 (/ dist max-distance)) (if 
+                 (and (>= 1 no-down) (>= 1 no-left)) 
                  0
                  0.2)
-     penalties (* @no-penalties 0.06)]
-  (- (- 1 (/ (distance genome) max-distance)) down-left penalties)
+    (* no-pen 0.06))
  ))
 
 (defn current-field
   "Calculates next position based on current position and given step"
   [startp [x y]]
-  (let [p startp]
+  (let [px (get startp 0)
+        py (get startp 1)]
     (case [x y]
       [0 0] (if-not 
               (or 
-                    (= (get-in final-board [(inc (get startp 0)) (get startp 1)]) "bl")
-                    (= (get-in final-board [(inc (get startp 0)) (get startp 1)]) nil))
-              (assoc p 0 (inc (get startp 0)))
-              p)
+                    (= (get-in final-board [(inc px) py]) "bl")
+                    (= (get-in final-board [(inc px) py]) nil))
+              [(inc px) py]
+              [px py])
       [0 1] (if-not 
               (or 
-                    (= (get-in final-board [(get startp 0) (inc (get startp 1))]) "bl")
-                    (= (get-in final-board [(get startp 0) (inc (get startp 1))]) nil))
-                  
-              (assoc p 1 (inc (get startp 1)))
-              p) 
+                    (= (get-in final-board [px (inc py)]) "bl")
+                    (= (get-in final-board [px (inc py)]) nil))                  
+              [px (inc py)]
+              [px py])
       [1 0] (if-not  
               (or 
-                    (= (get-in final-board [(dec (get startp 0)) (get startp 1)]) "bl")
-                    (= (get-in final-board [(dec (get startp 0)) (get startp 1)]) nil))
-              (assoc p 0 (dec (get startp 0)))
-              p)
+                    (= (get-in final-board [(dec px) py]) "bl")
+                    (= (get-in final-board [(dec px) py]) nil))
+              [(dec px) py]
+              [px py])
       [1 1] (if-not 
               (or 
-                    (= (get-in final-board [(get startp 0) (dec (get startp 1))]) "bl")
-                    (= (get-in final-board [(get startp 0) (dec (get startp 1))]) nil))
-              (assoc p 1 (dec (get startp 1)))
-              p))))
-  
-
-
-
+                    (= (get-in final-board [px (dec py)]) "bl")
+                    (= (get-in final-board [px (dec py)]) nil))
+              [px (dec py)]
+              [px py])
+)
+  ))
