@@ -7,13 +7,11 @@
 
 (defn index-page []
   "Creates index page"
-  (html5
-  (conv/html-file->hiccup "resources/views/index.html")))
+  (html5 (conv/html-file->hiccup "resources/views/index.html")))
 
 (defn not-found []
   "Creates page not found"
-  (html5
-    [:div#not-found.red "Page Not Found!"]))
+  (html5 [:div#not-found.red "Page Not Found!"]))
 
 
 (defn createScript
@@ -27,7 +25,5 @@
   []
   (do 
     (html
-    (conv/html-file->hiccup "resources/views/home.html")   
-    [:script {:type "text/javascript"} 
-         (apply str
-               (createScript (evolve-result 10 0.2 0.4 0.2 0.97 300)))])))
+      (conv/html-file->hiccup "resources/views/home.html")   
+      [:script {:type "text/javascript"} (apply str (createScript (evolve-result 10 0.2 0.4 0.2 0.97 300)))])))

@@ -20,12 +20,12 @@
 
 (deftest generation-creation
   (vector? (create-generation 5))
-  (is (= (count @generation) 5))
-  (is (= (count (get @generation 0)) 20)))
+  (is (= (count (create-generation 5)) 5))
+  (is (= (count (get (create-generation 5) 0)) 20)))
 
 (deftest obtaining-currentt-position
   (current-position [0 0 0 1 0 0 1 1 1 1 1 1])
-  (is (= @start [1 0])))
+  (is (= (get (current-position [0 0 0 1 0 0 1 1 1 1 1 1]) 0) [1 0])))
 
 (deftest obtaining-distance
   (is (= (distance [0 0 0 1 0 0 1 1 1 1 1 1]) 4)))
@@ -37,8 +37,11 @@
   (is (= (current-field [3 0] [0 0]) [4 0])))
 
 (deftest obtaining-result-list
-  (is (= (get (into [] (get-result-list [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] 
-                                         [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])) 1)
+  (is (= (get (into [] (get-result-list [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])) 1)
+         [0.7266666666666667 [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])))
+
+(deftest obtaining-sorted-result-list
+  (is (= (get (into [] (get-sorted-list  [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])) 1)
          [0.7266666666666667 [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])))
 
 (deftest obtaining-best-unit
