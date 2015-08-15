@@ -70,4 +70,6 @@
 (deftest obtaining-evolve-result
   (is (= (count (evolve-result 10 0.2 0.4 0.2 0.95 250)) 11)))
 
+(evolve-result 10 0.2 0.4 0.2 0.97 300)
+(use 'criterium.core)
 (run-tests)

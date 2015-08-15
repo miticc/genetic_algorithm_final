@@ -3,7 +3,8 @@
     clojure.core
     clojure.pprint
     genomes.genomes
-    algorithm.algorithm))
+    algorithm.algorithm)
+  (:use criterium.core))
 
 
 (defn get-result-list
@@ -104,3 +105,5 @@
           (let [p (current-field position [(get winner i) (get winner (inc i))])]
             (swap! aresult conj p)     
             (recur (+ i 2) p))))) @aresult))
+(evolve-result 10 0.2 0.4 0.2 0.97 300)
+(with-progress-reporting (bench (evolve-result 10 0.2 0.4 0.2 0.97 300) :verbose))
