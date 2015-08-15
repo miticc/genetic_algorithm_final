@@ -26,4 +26,4 @@
   (do 
     (html
       (conv/html-file->hiccup "resources/views/home.html")   
-      [:script {:type "text/javascript"} (apply str (createScript (evolve-result 10 0.2 0.4 0.2 0.97 300)))])))
+      [:script {:type "text/javascript"} (apply str (createScript (evolve-result 10 0.2 0.4 0.2 0.97 200)))])))

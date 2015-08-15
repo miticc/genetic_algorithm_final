@@ -42,28 +42,35 @@
                       (swap! starty dec))))
           (recur (+ i 2))))) 
     [[@startx @starty] @no-down @no-left @no-penalties]))
-;(current-position [0 0 0 1 0 0 1 1 1 1 1 1])
+
+
+
+(current-position [0 0 0 1 0 0 1 1 1 1 1 1])
 ;(with-progress-reporting (bench (current-position [0 0 0 1 0 0 1 1 1 1 1 1]) ))
+
 (defn distance 
   "Calculates the distance between the final position and target field"
   [genome]
   (let [curr-pos (current-position genome)
         finish [3 2]]
-    [(+ (- (get finish 1) (get (get curr-pos 0) 1)) (- (get finish 0) (get (get curr-pos 0) 0))) curr-pos]))
-
+    [(+ (- (nth finish 1) (nth (nth curr-pos 0) 1)) (- (nth finish 0) (nth (nth curr-pos 0) 0))) curr-pos]))
+(distance [0 0 0 1 0 0 1 1 1 1 1 1])
+;(with-progress-reporting (bench (distance [0 0 0 1 0 0 1 1 1 1 1 1]) ))
 (defn fitness
   "Calculates the fitness of the genome"
   [genome]
   (let 
     [max-distance 30
      distance (distance genome)
-     dist (get distance 0)
-     no-down (get (get distance 1) 1)
-     no-left (get (get distance 1) 2)
-     no-pen (get (get distance 1) 3)]
+     dist (nth distance 0)
+     no-down (nth (nth distance 1) 1)
+     no-left (nth (nth distance 1) 2)
+     no-pen (nth (nth distance 1) 3)]
     (- (- 1 (/ dist max-distance)) (if (and (>= 1 no-down) (>= 1 no-left)) 0 0.2) (* no-pen 0.06))))
-;(fitness [0 0 0 1 0 0 1 1 1 1 1 1])
+
+(fitness [0 0 0 1 0 0 1 1 1 1 1 1])
 ;(with-progress-reporting (bench (fitness [0 0 0 1 0 0 1 1 1 1 1 1]) ))
+
 (defn current-field
   "Calculates next position based on current position and given step"
   [startp [x y]]
@@ -90,3 +97,6 @@
                       (= (get-in final-board [px (dec py)]) nil))
               [px (dec py)]
               [px py]))))
+
+(current-field [3 0] [0 0])
+;(with-progress-reporting (bench (current-field [3 0] [0 0]) ))

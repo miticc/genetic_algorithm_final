@@ -1,6 +1,7 @@
 (ns genomes.genomes  
   (:use clojure.core
-        clojure.pprint))
+        clojure.pprint
+        criterium.core))
 
 (defn create-genome 
   "Creates genome as a sequence of n random chosen 0 or 1"
@@ -10,6 +11,7 @@
       (when (< i length)
         (swap! genome conj (rand-int 2))
         (recur (inc i)))) @genome))
+;(with-progress-reporting (bench (create-genome 10)))
 
 (defn create-generation 
   "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
@@ -19,3 +21,5 @@
       (when (< i n)
         (swap! generation conj (create-genome 20))
         (recur (inc i)))) @generation))
+
+;(with-progress-reporting (bench (create-generation 5)))
