@@ -2,8 +2,8 @@
   (:use
     clojure.core
     clojure.pprint
-    genomes.genomes
-    algorithm.algorithm
+    genomes.genomes_opt
+    algorithm.algorithm_opt
     criterium.core))
 
 
@@ -29,7 +29,7 @@
   [generation]
   (let [result-list (get-sorted-list generation)
         best-unit []]
-    (conj best-unit (- 1 (first (first result-list))) (second (first (sort result-list))))))
+    (conj best-unit (- 1 (first (first result-list))) (second (first result-list)))))
 
 ;(with-progress-reporting (bench (get-best-unit (create-generation 10))))
 
@@ -48,8 +48,6 @@
   [percent generation]
   (let [genomes-list (into [] (create-genomes-list generation))]
     (take (Math/round (* percent (count generation))) genomes-list)))
-
-;(with-progress-reporting (bench get-candidates 0.3 (create-generation 10)))
 
 (defn mutate
   "Mutates n% of units (genomes) in the generation"
@@ -124,4 +122,4 @@
             (swap! aresult conj p)     
             (recur (+ i 2) p))))) @aresult))
 ;(evolve-result 10 0.2 0.4 0.2 0.97 100)
-(with-progress-reporting (bench (evolve-result 10 0.2 0.4 0.2 0.97 100) :verbose))
+;(with-progress-reporting (bench (evolve-result 10 0.2 0.4 0.2 0.97 100) :verbose))

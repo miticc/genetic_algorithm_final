@@ -19,5 +19,3 @@
   "Creates final board"
   (board-fill (board-fill (board-set 6 5) [[2 1][2 2][2 3][2 4][4 2][5 2]] "bl") [[4 3]] "f"))
 
-
-

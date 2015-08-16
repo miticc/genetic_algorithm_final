@@ -1,4 +1,4 @@
-(ns evolution.evolution
+(ns evolution.evolution_opt
   (:use
     clojure.core
     clojure.pprint
@@ -6,23 +6,6 @@
     algorithm.algorithm_opt
     criterium.core))
 
-
-(defn get-result-list
-  "Returns a list containing fitness value - genome pairs"
-  [generation]
-  (let [result-list  []]
-    (for [genome generation]
-      (conj result-list (- 1 (fitness genome)) genome))))
-;(with-progress-reporting (bench (get-result-list [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])) ))
-
-(defn get-sorted-list
-  "Returns a sorted list containing fitness value - genome pairs"
-  [generation]  
-  (let [list (get-result-list generation)]
-    (sort list)))
-(get-sorted-list  [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])
-
-;(with-progress-reporting (bench (get-sorted-list  [[1 0 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0] [1 0 1 0 1 0 1 0 0 0 1 0 0 1 1 1 1 1 1 0]])))
 
 (defn get-best-unit
   "Takes the best unit (genome) from a population and its fitness value"
@@ -61,6 +44,18 @@
             (recur (+ i 5))))
         (flatten (conj new-generation @genome))))))
 
+(defn mutate-new
+  "Mutates n% of units (genomes) in the generation"
+  [percent generation]
+  (let [new-generation []]
+    (for [candidate (get-candidates percent generation)]  
+      (let [genome (atom (into [] candidate))]
+        (loop [i 4]
+          (when (< i (count candidate))
+            (swap! genome assoc i (if (= (get @genome i) 0) 1 0))
+            (recur (+ i 5))))
+        (flatten (conj new-generation @genome))))))
+
 ;(with-progress-reporting (bench mutate 0.3 (create-generation 10)))
 
 (defn create-child
@@ -81,6 +76,27 @@
       (concat new-generation (create-child (get generation i) (get generation (inc i)))))))
 
 ;(with-progress-reporting (bench crossover 0.3 (create-generation 10)))
+
+(defn evolve-new 
+  "Evolves population with the specific parameters until the target is reached or maximum number of iterations is exceeded"
+  ([popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
+    (let [generation (create-generation popsize)]
+          (evolve-new popsize percent-survival percent-mutation percent-crossover max-error max-iterations generation false 1)))
+    ([popsize percent-survival percent-mutation percent-crossover max-error max-iterations generation success iteration]
+      (if (and (< iteration max-iterations) (false? success))
+        (if (> (nth (nth generation 9) 0) max-error)
+          (do
+            (pprint (nth generation 9))
+            (recur popsize percent-survival percent-mutation percent-crossover max-error max-iterations generation true iteration)
+            )
+          (do
+            (let [new-generation (for [i (concat (get-candidates 0.2 generation) (mutate 0.3 generation) (crossover 0.5 generation)(create-generation 4))]
+                                  (into [] i))]
+            (pprint iteration)
+            (recur popsize percent-survival percent-mutation percent-crossover max-error max-iterations new-generation false (inc iteration)))))
+        (pprint "nema"))))
+
+(evolve-new 10 0.2 0.4 0.2 0.95 100)           
 
 (defn evolve 
   "Evolves population with the specific parameters until the target is reached or maximum number of iterations is exceeded"

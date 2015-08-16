@@ -43,7 +43,7 @@
           (recur (+ i 2))))) 
     [[@startx @starty] @no-down @no-left @no-penalties]))
 ;(current-position [0 0 0 1 0 0 1 1 1 1 1 1])
-;(with-progress-reporting (bench (current-position [0 0 0 1 0 0 1 1 1 1 1 1]) ))
+;(with-progress-reporting (bench (distance [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1]) ))
 (defn distance 
   "Calculates the distance between the final position and target field"
   [genome]

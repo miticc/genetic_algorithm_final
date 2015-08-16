@@ -1,9 +1,9 @@
-(ns algorithm.algorithm
+(ns algorithm.algorithm_opt
   (:use clojure.core
         clojure.pprint
         board.board
         criterium.core))
-
+(comment
 (defn current-position
   "Calculates the final position after ecexution of all steps in the genome"
   [genome]
@@ -43,10 +43,7 @@
           (recur (+ i 2))))) 
     [[@startx @starty] @no-down @no-left @no-penalties]))
 
-
-
 (current-position [0 0 0 1 0 0 1 1 1 1 1 1])
-;(with-progress-reporting (bench (current-position [0 0 0 1 0 0 1 1 1 1 1 1]) ))
 
 (defn distance 
   "Calculates the distance between the final position and target field"
@@ -54,8 +51,8 @@
   (let [curr-pos (current-position genome)
         finish [3 2]]
     [(+ (- (nth finish 1) (nth (nth curr-pos 0) 1)) (- (nth finish 0) (nth (nth curr-pos 0) 0))) curr-pos]))
-(distance [0 0 0 1 0 0 1 1 1 1 1 1])
-;(with-progress-reporting (bench (distance [0 0 0 1 0 0 1 1 1 1 1 1]) ))
+
+
 (defn fitness
   "Calculates the fitness of the genome"
   [genome]
@@ -70,6 +67,8 @@
 
 (fitness [0 0 0 1 0 0 1 1 1 1 1 1])
 ;(with-progress-reporting (bench (fitness [0 0 0 1 0 0 1 1 1 1 1 1]) ))
+(with-progress-reporting (bench (fitness [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1]) ))
+)
 
 (defn current-field
   "Calculates next position based on current position and given step"
