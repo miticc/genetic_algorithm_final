@@ -93,6 +93,13 @@
   [n]
   (take n (repeatedly #(create-unit 14))))
 
+(defn create-sorted-generation
+  "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
+  [n]
+  (sort (take n (repeatedly #(create-unit 14)))))
+
+(create-sorted-generation 10)
+
 (take-last 5 (sort (create-generation 10)))
 ;(sort-by :fitness_value (create-generation 10))
 ;(with-progress-reporting (bench (take-last 5 (sort-by :fitness_value (create-generation 10)))))
