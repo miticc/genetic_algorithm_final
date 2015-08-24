@@ -97,5 +97,5 @@
               [px (dec py)]
               [px py]))))
 
-(current-field [3 0] [0 0])
+;(current-field [3 0] [0 0])
 ;(with-progress-reporting (bench (current-field [3 0] [0 0]) ))

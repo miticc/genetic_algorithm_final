@@ -46,12 +46,6 @@
             (recur (+ i 3))))
         (conj new-generation (fitness @genome) @genome)))))
 
-(mutate 0.4 (create-sorted-generation 10))
-(def f (atom (nth (last la) 1)))
-f
-(fitness @f)
-(conj [] (fitness @f) @f)
-
 ;(with-progress-reporting (bench mutate 0.3 (create-generation 10)))
 
 (defn create-child
@@ -73,10 +67,9 @@ f
         (do
           (let [child (create-child (nth (nth gen i) 1) (nth (nth gen (inc i)) 1))]
             (recur (inc i) (conj new-generation (fitness child) child))))
-        new-generation))))
+       (conj [] new-generation)))))
 
 ;(with-progress-reporting (bench crossover 0.3 (create-generation 10)))
-
 (defn evolve-new 
   "Evolves population with the specific parameters until the target is reached or maximum number of iterations is exceeded"
   ([popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
@@ -86,45 +79,60 @@ f
       (if (and (< iteration max-iterations) (false? success))
         (if (> (nth (last generation) 0) max-error)
           (do
-            (pprint (last generation))
+            ;(pprint (last generation))
+            ;(pprint iteration)
+            ;(pprint generation)
             (recur popsize percent-survival percent-mutation percent-crossover max-error max-iterations generation true iteration))
           (do
+            (pprint iteration)
             (let [survivors (take-last (Math/round (* percent-survival popsize)) generation)
                   mutants (mutate percent-mutation generation)
                   crossed-over (crossover percent-crossover generation)
-                  new-ones (create-generation (* (- 1 (+ percent-survival percent-mutation percent-crossover -0.1 )) 10))
-                  ;new-generation (for [i (concat [] survivors)] (into [] i))]
+                  new-ones (create-generation (* (- 1 percent-survival percent-mutation percent-crossover -0.1) 10))
+                  new-generation (for [i (create-generation (Math/round (* 10 (- 1.1 percent-survival percent-mutation percent-crossover))))] (into [] i));]
                   ]
-            ;(pprint iteration)
+              ;(pprint iteration)
+              ;(pprint survivors)
+              ;(pprint mutants)
+              ;(pprint crossed-over)
+              ;(pprint (sort (concat [] survivors mutants crossed-over new-generation)))
             (recur popsize percent-survival percent-mutation percent-crossover max-error max-iterations 
-                   (concat [] survivors mutants crossed-over new-ones) 
+                   (sort (concat [] survivors mutants crossed-over new-ones))
                    false (inc iteration)))))
-        (pprint "nema"))))
+        (last generation)
+        )))
+(evolve-new 10 0.2 0.4 0.2 0.95 10)
+(comment
+(evolve-new 10 0.2 0.4 0.2 0.95 10)
 
-
+(create-generation 3.0001)
 (def new (create-generation (* (- 1 (+ 0.2 0.4 0.2 -0.1 )) 10)))
 (def generation (concat [] (take-last (Math/round (* 0.2 10)) la)))
 (nth (nth generation 9) 0)
 (last generation)
 (mutate 0.4 la)
 (def generation (create-generation 10))
+(Math/round 10)
 generation
-(def sur (take 3 generation))
+(def sur (take-last 2 generation))
 sur
 (def mut (mutate 0.4 generation))
 mut
-(def cross (crossover 0.4 generation))
+(def cross (crossover 0.2 generation))
+(concat [] mut cross sur)
 cross
 (def new (create-generation 4))
 (concat sur mut cross new)
-(def la (concat sur mut cross new))
+(def la (concat sur mut cross))
+(sort la)
  (first (last la))
 (count la)
 ;(sort (conj sur mut cross new))
 
-(evolve-new 10 0.2 0.4 0.2 0.95 10)           
-(create-sorted-generation 10)
 
+(with-progress-reporting (bench crossover 0.3 (evolve-new 10 0.2 0.4 0.2 0.95 200)))
+(create-sorted-generation 10)
+)
 (defn evolve 
   "Evolves population with the specific parameters until the target is reached or maximum number of iterations is exceeded"
   [popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
@@ -152,17 +160,31 @@ cross
 
 ;(with-progress-reporting (crossover 0.3 (bench (evolve 10 0.2 0.4 0.2 0.95 10))))
 
-(defn evolve-result 
-  "Creates a path based on results of the evloution"
-  [popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
+(defn evolve-result-new
+[popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
   (let [aresult (atom [[0 0]])
         winner (evolve popsize percent-survival percent-mutation percent-crossover max-error max-iterations)]  
     (if (not= winner [])
       (loop [i 0
              position [0 0]]
-        (when (<= i 18)
+        (when (<= i 16)
           (let [p (current-field position [(get winner i) (get winner (inc i))])]
             (swap! aresult conj p)     
             (recur (+ i 2) p))))) @aresult))
-;(evolve-result 10 0.2 0.4 0.2 0.97 100)
-;(with-progress-reporting (bench (evolve-result 10 0.2 0.4 0.2 0.97 100) :verbose))
+
+(defn evolve-result 
+  "Creates a path based on results of the evloution"
+  [popsize percent-survival percent-mutation percent-crossover max-error max-iterations]
+  (let [aresult (atom [[0 0]])
+        winner (evolve-new popsize percent-survival percent-mutation percent-crossover max-error max-iterations)]  
+    (do 
+      (pprint winner)
+      (if (not= winner [])
+        (loop [i 0
+               position [0 0]]
+          (when (<= i 14)
+            (let [p (current-field position [(nth (last winner) i) (nth (last winner) (inc i))])]
+              (swap! aresult conj p)     
+              (recur (+ i 2) p))))) @aresult)))
+;(def res (evolve-result 11 0.2 0.4 0.2 0.95 300))
+;(with-progress-reporting (bench (evolve-result 10 0.2 0.4 0.2 0.97 200)))

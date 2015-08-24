@@ -21,6 +21,8 @@
     (loop [i 0]
       (when (< i (count genome))
         (let [[x y] [(get genome i) (get genome (inc i))]]
+          ;(pprint i)
+          ;(pprint [x y])
           (case [x y]
             [0 0] (if (or 
                         (= (get-in final-board [(inc @startx) @starty]) "bl")
@@ -49,16 +51,17 @@
           (recur (+ i 2))))) 
     [[@startx @starty] @no-down @no-left @no-penalties]))
 
-;(current-position [0 0 0 1 0 0 1 1 1 1 1 1])
+(current-position [1 0 1 1 0 1 1 0 1 0 1 1 1 1 1 0])
+;(count [1 0 1 1 0 1 1 0 1 0 1 1 1 1 1 0])
 
 (defn distance 
   "Calculates the distance between the final position and target field"
   [genome]
   (let [curr-pos (current-position genome)
-        finish [3 2]]
+        finish [4 3]]
     [(+ (- (nth finish 1) (nth (nth curr-pos 0) 1)) (- (nth finish 0) (nth (nth curr-pos 0) 0))) curr-pos]))
 
-;(distance [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1])
+;(distance [0 1 1 1 0 0 0 1 1 0 0 1 0 1 0 0])
 
 (defn fitness
   "Calculates the fitness of the genome"
@@ -70,9 +73,13 @@
      no-down (nth (nth distance 1) 1)
      no-left (nth (nth distance 1) 2)
      no-pen (nth (nth distance 1) 3)]
-    (- (- 1 (/ dist max-distance)) (if (and (>= 1 no-down) (>= 1 no-left)) 0 0.2) (* no-pen 0.06))))
+    (- (- 1 (/ dist max-distance)) (if (and (>= 1 no-down) (>= 0 no-left)) 0 0.1) (* no-pen 0.06))))
 
-;(fitness [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1])
+;(def d (distance [1 0 0 0 1 1 1 1 0 1 0 1 0 1 0 1]))
+;(current-position [1 0 0 0 1 1 1 1 0 1 0 1 0 1 0 1])
+;  (nth (nth d 1) 2)
+ ; (if (>= 0 (nth (nth d 1) 2)) 2 3)
+;(fitness [0 0 0 0 0 0 1 1 1 0 1 0 1 1 0 0])
 ;(with-progress-reporting (bench (fitness [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1]) ))
 
 (defn create-unit
@@ -85,22 +92,22 @@
   ;(->Unit genome fitness)
   ))
 
-(create-unit 20)
+;(create-unit 20)
 ;(with-progress-reporting (bench (create-unit 20) ))
 
 (defn create-generation
   "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
   [n]
-  (take n (repeatedly #(create-unit 14))))
+  (take n (repeatedly #(create-unit 16))))
 
 (defn create-sorted-generation
   "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
   [n]
-  (sort (take n (repeatedly #(create-unit 14)))))
+  (sort (take n (repeatedly #(create-unit 16)))))
 
-(create-sorted-generation 10)
+;(create-sorted-generation 10)
 
-(take-last 5 (sort (create-generation 10)))
+;(take-last 5 (sort (create-generation 10)))
 ;(sort-by :fitness_value (create-generation 10))
 ;(with-progress-reporting (bench (take-last 5 (sort-by :fitness_value (create-generation 10)))))
 ;(with-progress-reporting (bench (take-last 5 (sort (create-generation 10)))))
@@ -134,9 +141,10 @@
                        (= (get-in final-board [startx (dec starty)]) nil))
                     (recur (subvec genome 2) startx starty down left (inc no-penalties))
                     (recur (subvec genome 2) startx (dec starty) down (inc left) no-penalties)))
-      )))))
+      ))
+      [startx starty] )))
 
-;(curr-pos-new (into [] la))
+(curr-pos-new [1 0 1 1 0 1 1 0 1 0 1 1 1 1 1 0])
 ;(with-progress-reporting (bench (curr-pos-new (into [] la))))
 
 (defn fitness-new
@@ -157,7 +165,7 @@
       )))
 ;(pprint (def la (create-genome 10)))
         
-;(fitness-new (into [] la))
+;(fitness-new [0 0 0 0 0 0 1 1 0 1 0 0 0 0 0 0])
 ;(subvec (into [] (create-genome 6)) 2)
 
 
