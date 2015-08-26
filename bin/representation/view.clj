@@ -1,7 +1,7 @@
 (ns representation.view
   (:use [hiccup core page]
         [hiccup-bridge.core :as conv]
-        evolution.evolution)
+        evolution.evolution_opt)
    (:require [compojure.response :refer [render]]
             [clojure.java.io :as io]))
 
