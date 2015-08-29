@@ -22,36 +22,48 @@
       (when (< i (count genome))
         (let [[x y] [(get genome i) (get genome (inc i))]]
           (case [x y]
-            [0 0] (if (not= (get-in final-board-new [(inc @startx) @starty]) :on)
+            [0 0] (if (= (get-in final-board-new [(inc @startx) @starty]) "f")
+                    (do
+                      (reset! no-penalties -5)
+                      (swap! startx inc))
+                    (if (not= (get-in final-board-new [(inc @startx) @starty]) :on)
                       (if (= (get-in final-board-new [(inc @startx) @starty]) nil)                                        
                         (swap! no-penalties + 0.1)
                         (swap! no-penalties + (get-in final-board-new [(inc @startx) @starty])))
-                    (swap! startx inc))
-            [0 1] (if (not= (get-in final-board-new [@startx (inc @starty)]) :on)
-                    (if (= (get-in final-board-new [@startx (inc @starty)]) nil)
-                      (swap! no-penalties + 0.1)
-                      (swap! no-penalties + (get-in final-board-new [@startx (inc @starty)])))
-                    (swap! starty inc)) 
-            [1 0] (if (not= (get-in final-board-new [(dec @startx) @starty]) :on)
-                    (if (= (get-in final-board-new [(dec @startx) @starty]) nil)
-                      (swap! no-penalties + 0.1)
-                      (swap! no-penalties + (get-in final-board-new [(dec @startx) @starty])))
+                      (swap! startx inc)))
+            [0 1] (if (= (get-in final-board-new [@startx (inc @starty)]) "f")
                     (do
-                      (swap! no-down inc)
-                      (swap! startx dec)))
-            [1 1] (if (not= (get-in final-board-new [@startx (dec @starty)]) :on)
-                    (if (= (get-in final-board-new [@startx (dec @starty)]) nil)
-                      (swap! no-penalties + 0.1)
-                      (swap! no-penalties + (get-in final-board-new [@startx (dec @starty)])))
+                      (reset! no-penalties -5)
+                      (swap! startx dec))
+                    (if (not= (get-in final-board-new [@startx (inc @starty)]) :on)
+                      (if (= (get-in final-board-new [@startx (inc @starty)]) nil)
+                        (swap! no-penalties + 0.1)
+                        (swap! no-penalties + (get-in final-board-new [@startx (inc @starty)])))
+                      (swap! starty inc))) 
+            [1 0] (if (= (get-in final-board-new [(dec @startx) @starty]) "f")
                     (do
-                      (swap! no-left inc)
-                      (swap! starty dec))))
+                      (reset! no-penalties -5)
+                      (swap! startx dec))
+                    (if (not= (get-in final-board-new [(dec @startx) @starty]) :on)
+                      (if (= (get-in final-board-new [(dec @startx) @starty]) nil)
+                        (swap! no-penalties + 0.1)
+                        (swap! no-penalties + (get-in final-board-new [(dec @startx) @starty])))
+                      (do
+                        (swap! no-down inc)
+                        (swap! startx dec))))
+            [1 1] (if (= (get-in final-board-new [@startx (dec @starty)]) "f")
+                    (do 
+                      (reset! no-penalties -5)
+                      (swap! starty dec))
+                    (if (not= (get-in final-board-new [@startx (dec @starty)]) :on)
+                      (if (= (get-in final-board-new [@startx (dec @starty)]) nil)
+                        (swap! no-penalties + 0.1)
+                        (swap! no-penalties + (get-in final-board-new [@startx (dec @starty)])))
+                      (do
+                        (swap! no-left inc)
+                        (swap! starty dec)))))
           (recur (+ i 2)))))
     [[@startx @starty] @no-down @no-left @no-penalties]))
-
-
-(def a (into [](create-genome 16)))
-(current-position-pen a)
 
 (defn current-position
   "Calculates the final position after ecexution of all steps in the genome"
@@ -102,8 +114,6 @@
         finish [4 3]]
     [(+ (- (nth finish 1) (nth (nth curr-pos 0) 1)) (- (nth finish 0) (nth (nth curr-pos 0) 0))) curr-pos]))
 
-(distance-pen a)
-
 (defn distance 
   "Calculates the distance between the final position and target field"
   [genome]
@@ -135,18 +145,8 @@
      no-down (nth (nth distance 1) 1)
      no-left (nth (nth distance 1) 2)
      no-pen (nth (nth distance 1) 3)]
-    (- (- 1 (/ dist max-distance)) no-pen (if (or (>= 0 no-down) (>= 0 no-left)) 0.1 0))))
+    (- 1 (* dist 0.05) no-pen (if (or (> no-left 0 ) (> no-down 0)) 0.1 0))))
 
-
-(def a (into [](create-genome 20)))
-(current-position-pen a)
-(fitness-pen a)
-
-;(def d (distance [1 0 0 0 1 1 1 1 0 1 0 1 0 1 0 1]))
-;(current-position [1 0 0 0 1 1 1 1 0 1 0 1 0 1 0 1])
-;  (nth (nth d 1) 2)
- ; (if (>= 0 (nth (nth d 1) 2)) 2 3)
-;(fitness [0 0 0 0 0 0 1 1 1 0 1 0 1 1 0 0])
 ;(with-progress-reporting (bench (fitness [0 0 0 1 0 0 1 1 1 1 1 1 0 0 1 0 1 1 0 1]) ))
 
 (defn create-unit
@@ -155,9 +155,15 @@
   (let [genome (into [] (create-genome length)) 
         fitness (fitness  genome)
         unit []]
-    (conj unit fitness genome)
-  ;(->Unit genome fitness)
-  ))
+    (conj unit fitness genome)))
+
+(defn create-unit-pen
+  "kreira jednu jedinku i postavlja vrednosti poljima"
+  [length]
+  (let [genome (into [] (create-genome length)) 
+        fitness (fitness-pen  genome)
+        unit []]
+    (conj unit fitness genome)))
 
 ;(create-unit 20)
 ;(with-progress-reporting (bench (create-unit 20) ))
@@ -165,36 +171,22 @@
 (defn create-generation
   "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
   [n]
-  (take n (repeatedly #(create-unit 16))))
+  (take n (repeatedly #(create-unit 20))))
+
+(defn create-generation-pen
+  "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
+  [n]
+  (take n (repeatedly #(create-unit-pen 20))))
 
 (defn create-sorted-generation
   "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
   [n]
-  (sort (take n (repeatedly #(create-unit 16)))))
+  (sort (take n (repeatedly #(create-unit 20)))))
 
-;(create-sorted-generation 10)
-
-;(take-last 5 (sort (create-generation 10)))
-;(sort-by :fitness_value (create-generation 10))
-;(with-progress-reporting (bench (take-last 5 (sort-by :fitness_value (create-generation 10)))))
-;(with-progress-reporting (bench (take-last 5 (sort (create-generation 10)))))
-
-(defn fitness-new
-  ([genome]
-    (let [pen (atom 0)]
-    (fitness-new (into [] genome) 0 0 pen)))
-  ([genome x y penalties]
-    (if (not= (count genome) 0)
-      (let [vec (take 2 genome)]
-        (do 
-          (if (or 
-                (= (get-in final-board [(+ (nth vec 0) x ) (+ (nth vec 1) y )] "bl"))
-                (= (get-in final-board [(+ (nth vec 0) x ) (+ (nth vec 1) y )] "nil"))
-                (some #(= -1 %) vec))
-            (swap! penalties + 0.1))
-          (recur (subvec genome 2) (+ (nth vec 0) x ) (+ (nth vec 1) y ) penalties)))
-     ;racunanje fitnessa na osnovu penalt
-      )))
+(defn create-sorted-generation-pen
+  "Creates generation of n genomes, each genome length is 10 steps (10x2 fields)"
+  [n]
+  (sort (take n (repeatedly #(create-unit-pen 20)))))
 
 (defn current-field
   "Calculates next position based on current position and given step"
@@ -220,6 +212,33 @@
       [1 1] (if-not (or 
                       (= (get-in final-board [px (dec py)]) "bl")
                       (= (get-in final-board [px (dec py)]) nil))
+              [px (dec py)]
+              [px py]))))
+
+(defn current-field-pen
+  "Calculates next position based on current position and given step"
+  [startp [x y]]
+  (let [px (nth startp 0)
+        py (nth startp 1)]
+    (case [x y]
+      [0 0] (if (or 
+                  (= (get-in final-board [(inc px) py]) :on)
+                  (= (get-in final-board [(inc px) py]) "f"))
+              [(inc px) py]
+              [px py])
+      [0 1] (if (or 
+                  (= (get-in final-board [px (inc py)]) :on)
+                  (= (get-in final-board [px (inc py)]) "f"))                  
+              [px (inc py)]
+              [px py])
+      [1 0] (if (or 
+                  (= (get-in final-board [(dec px) py]) :on)
+                  (= (get-in final-board [(dec px) py]) "f"))
+              [(dec px) py]
+              [px py])
+      [1 1] (if (or 
+                  (= (get-in final-board [px (dec py)]) :on)
+                  (= (get-in final-board [px (dec py)]) "f"))
               [px (dec py)]
               [px py]))))
 

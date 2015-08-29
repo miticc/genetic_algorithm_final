@@ -17,11 +17,11 @@
 
 (def final-board-new
   "Creates final board"
-  (board-fill (board-fill (board-fill (board-fill (board-fill (board-fill (board-fill (board-set 6 5) [[5 2]] 0.2)
+  (board-fill (board-fill (board-fill (board-fill (board-fill (board-fill (board-fill (board-set 6 5) [[5 2]] 0.15)
                                                                           [[4 2]] 0.1)
                                                               [[2 4]] 0.4)
                                                   [[2 3]] 0.3)
-                                      [[2 2]] 0.2) 
+                                      [[2 2]] 0.15) 
                           [[2 1]] 0.1) 
               [[4 3]] "f"))
 
